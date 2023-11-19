@@ -1,3 +1,4 @@
+from typing import Union
 import logging
 import json
 import uuid
@@ -12,31 +13,33 @@ class JSONDatabase:
         logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename='JSONDatabaseLogs.log', filemode='a', level=logging.DEBUG)
 
     
-    def add_category(self, name: str) -> None:
+    def add_category(self, name: str) -> bool:
         if self.category_exists(name):
             logging.error(f"add_category() | The category \"{name}\" already exists.")
-            return
+            return False
 
         with open(f"{self.storage_path}/{name}.json", 'w') as f:
             json.dump([], f, indent=4)
         
         logging.info(f"add_category() | A category was succesfuly created: \"{name}\".")
+        return True
 
 
-    def remove_category(self, name:str) -> None:
+    def remove_category(self, name:str) -> bool:
         if not self.category_exists(name):
             logging.error(f"remove_category() | The category does not exist \"{name}\".")
-            return
+            return False
         
         os.remove(f"{self.storage_path}/{name}.json")
 
         logging.info(f"remove_category() | The category was succesfuly removed \"{name}\".")
+        return True
 
 
-    def add_document(self, document:dict, category:str) -> None:
+    def add_document(self, document:dict, category:str) -> bool:
         if not self.category_exists(category):
             logging.error(f"add_document() | The category that the document is being added to does not exist \"{category}\".")
-            return
+            return False
         
         with open(f"{self.storage_path}/{category}.json", "r") as f:
             category_json = json.load(f)
@@ -49,12 +52,13 @@ class JSONDatabase:
             json.dump(category_json, f, indent=4)
 
         logging.info(f"add_document() | A document was succesfuly added to \"{category}\".")
+        return True
 
     
-    def remove_document(self, document:dict, category:str) -> None:
+    def remove_document(self, document:dict, category:str) -> bool:
         if not self.category_exists(category):
             logging.error(f"remove_document() | The category that the document is being removed from does not exist \"{category}\".")
-            return
+            return False
         
         with open(f"{self.storage_path}/{category}.json", "r") as f:
             category_json = json.load(f)
@@ -63,20 +67,23 @@ class JSONDatabase:
             category_json.remove(document)
         except ValueError:
             logging.error(f"remove_document() | The document being removed from \"{category}\" does not exist in the category.")
+            return False
 
         with open(f"{self.storage_path}/{category}.json", "w") as f:
             json.dump(category_json, f, indent=4)
 
         logging.info(f"remove_document() | A document was removed from \"{category}\".")
+        return True
 
 
-    def edit_document(self, old_document:dict, new_document:dict, category:str) -> None:
+    def edit_document(self, old_document:dict, new_document:dict, category:str) -> bool:
         if not self.category_exists(category):
             logging.error(f"edit_document() | The category that the document is being edited in does not exist \"{category}\".")
-            return
+            return False
         
         if type(new_document) != dict:
             logging.error(f"edit_document() | The document being edited in \"{category}\" isn't a dictionary.")
+            return False
 
         with open(f"{self.storage_path}/{category}.json", "r") as f:
             category_json = json.load(f)
@@ -85,6 +92,7 @@ class JSONDatabase:
             category_json.remove(old_document)
         except ValueError:
             logging.error(f"edit_document() | The document being edited in \"{category}\" does not exist in the category.")
+            return False
         
         category_json.append(new_document)
 
@@ -92,16 +100,17 @@ class JSONDatabase:
             json.dump(category_json, f, indent=4)
 
         logging.info(f"edit_document() | A document was edited in \"{category}\".")
+        return True
 
 
-    def find_or(self, filter:dict, category:str) -> list:
+    def find_or(self, filter:dict, category:str) -> Union[list, bool]:
         """Method that will search a category and return documents as a list that match any of the filters. 
         The filter must be a dictionary which values are a list. Example:
         {"key1":["value1", "value2", "value3"], "key2":["value1", "value2", "value3"]}"""
 
         if not self.category_exists(category):
             logging.error(f"find_or() | The category that the document is being searched for in does not exist \"{category}\".")
-            return
+            return False
 
         with open(f"{self.storage_path}/{category}.json", "r") as f:
             category_json = json.load(f)
@@ -113,7 +122,7 @@ class JSONDatabase:
             for key, values in filter.items():
                 if type(values) != list:
                     logging.error(f"find_or() | The filter is not properly formated \"{filter}\".")
-                    return []
+                    return False
                 for value in values:
                     try:
                         if document[f"{key}"] == value:
@@ -128,14 +137,14 @@ class JSONDatabase:
         return elements
 
 
-    def find_and(self, filter:dict, category:str) -> list:
+    def find_and(self, filter:dict, category:str) -> Union[list, bool]:
         """Method that will search a category and return documents as a list that match all of the filters. 
         The filter must be a dictionary. The values of the filter must be a list and be of the same length. Example:
         {"key1":["value1", "value2", "value3"], "key2":["value1", "value2", "value3"]}"""
 
         if not self.category_exists(category):
             logging.error(f"find_and() | The category that the document is being searched for in does not exist \"{category}\".")
-            return
+            return False
 
         with open(f"{self.storage_path}/{category}.json", "r") as f:
             category_json = json.load(f)
@@ -153,7 +162,7 @@ class JSONDatabase:
                 
                 if len(values) != length and length != None:
                     logging.error(f"find_and() | The length of the values in the filter are not the same.")
-                    return []
+                    return False
                 
                 length = len(values)
 
@@ -176,14 +185,14 @@ class JSONDatabase:
         return elements
     
 
-    def find_key(self, filter:list, category:str) -> list:
+    def find_key(self, filter:list, category:str) -> Union[list, bool]:
         """Method that will search a category and return documents as a list that match any of the filters. 
         The filter must be a list. Example:
         ["key1", "key2", "key3"]"""
 
         if not self.category_exists(category):
             logging.error(f"find_key() | The category that the document is being searched for in does not exist \"{category}\".")
-            return
+            return False
 
         with open(f"{self.storage_path}/{category}.json", "r") as f:
             category_json = json.load(f)
@@ -204,3 +213,5 @@ class JSONDatabase:
         else:
             return False
 
+# data = JSONDatabase("tables")
+# print(data.find_or({"uuid":["46128b41-42c0-4f78-a150-232d6c8e6ade"]}, "test"))
