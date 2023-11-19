@@ -150,37 +150,35 @@ class JSONDatabase:
             category_json = json.load(f)
 
         elements = []
-        length = None
+        filters = []
+
+        # Checks if the value of each key is a list
+        for key, value in filter.items():
+            if type(value) != list:
+                logging.error(f"find_and() | The filter is not properly formated \"{filter}\".")
+                return False
+            filters.append([key, [element for element in value]])
+        
+        # Checks if each list is of the same length
+        length = len(filters[0][1])
+        for element in filters:
+            if len(element[1]) != length:
+                logging.error(f"find_and() | The length of the values in the filter are not the same.")
+                return False
 
         for document in category_json:
-            fit = True
-            flag = True
-            for key, values in filter.items():
-                if type(values) != list:
-                    logging.error(f"find_and() | The filter is not properly formated \"{filter}\".")
-                    return []
-                
-                if len(values) != length and length != None:
-                    logging.error(f"find_and() | The length of the values in the filter are not the same.")
-                    return False
-                
-                length = len(values)
-
-                for value in values:
+            for index in range(len(filters[1])):
+                fit = True
+                for element in filters:
                     try:
-                        if document[f"{key}"] == value:
+                        if document[element[0]] == element[1][index]:
                             continue
                     except KeyError:
                         pass
                     fit = False
-                    flag = False
                     break
-
-                if not flag:
-                    break
-            
-            if fit:
-                elements.append(document)
+                if fit:
+                    elements.append(document)
         
         return elements
     
@@ -201,7 +199,7 @@ class JSONDatabase:
 
         for document in category_json:
             for key in filter:
-                if key in document:
+                if key in document and document not in elements:
                     elements.append(document)
 
         return elements
@@ -213,5 +211,3 @@ class JSONDatabase:
         else:
             return False
 
-# data = JSONDatabase("tables")
-# print(data.find_or({"uuid":["46128b41-42c0-4f78-a150-232d6c8e6ade"]}, "test"))
