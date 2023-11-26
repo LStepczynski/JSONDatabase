@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "tailwindcss": "^3.3.3"
+  },
+  "scripts": {
+    "compile": "npx tailwindcss -i ./JSONDatabaseWebsite/main/static/css/input.css -o ./JSONDatabaseWebsite/main/static/css/output.css --watch"
+  },
+  "dependencies": {
+    "kute.js": "^2.2.4"
+  }
+}

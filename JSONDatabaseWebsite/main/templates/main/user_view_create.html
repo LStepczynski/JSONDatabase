@@ -1,0 +1,28 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Home {% endblock %}
+
+
+{% block head %}
+
+{% endblock %}
+
+
+{% block body %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        <div id="document-creator">
+            <div>
+                <p>Key</p>
+                <input name="key" type="text">
+        
+                <p>Value</p>
+                <input name="value" type="text">
+            </div>
+        </div>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <script src="../../static/js/user_view_create.js"></script>
+{% endblock %}

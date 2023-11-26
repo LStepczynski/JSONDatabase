@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Home {% endblock %}
+
+
+{% block head %}
+
+{% endblock %}
+
+
+{% block body %}
+<form action="" method="POST">
+    {% csrf_token %}
+    <p>Login</p>
+    <input name="username" type="text">
+
+    <p>Email</p>
+    <input name="email" type="text">
+
+    <p>Password</p>
+    <input name="password" type="password">
+
+    <button type="submit">Login</button>
+</form>
+{% endblock %}
