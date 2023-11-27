@@ -59,43 +59,32 @@ def register(request):
 @login_required
 def user_view(request):
     if request.method == "POST":
-        # Get the search option the user choose
-        option_value = request.POST.get('search-option')
-
-        # Get the search filter the user provided and try to evaluate it as a python object
         search_filter = request.POST.get('search-filter')
-        try:
-            search_filter = ast.literal_eval(search_filter)
-        except Exception:
-            pass
+        if search_filter == "":
+            return render(request, 'main/user_view.html', {'user_items':[item.items() for item in database.get(request.session['user'])],
+                                                           'search_filter':search_filter})
 
-        # Select a search function based on the option value or return all positions if "all"
-        if option_value == 'all':
-            return render(request, "main/user_view.html", {"search_filter":search_filter, 
-                                                           "search_option":option_value,
-                                                           "user_items":[item.items() for item in database.get(request.session['user'])]})
-        elif option_value == 'or':
-            search_func = database.find_or
-        elif option_value == 'and':
-            search_func = database.find_and
-        else:
-            search_func = database.find_key
-        
-        # If the search succeeded render the items if not render the page without them
-        user_items = []
-        if search_func(search_filter, request.session['user']):
-            user_items = [item.items() for item in search_func(search_filter, request.session['user'])]
-        return render(request, "main/user_view.html", {"search_filter":search_filter, 
-                                                       "search_option":option_value,
-                                                       "user_items":user_items})
+        return render(request, 'main/user_view.html', {"user_items":[item.items() for item in database.find_or({"Title":[search_filter]}, request.session['user'])],
+                                                       'search_filter':search_filter})
 
-    # Get all items from the database and render them
     user_items = [item.items() for item in database.get(request.session['user'])]
-    return render(request, "main/user_view.html", {"search_option":'all', "user_items":user_items})
+    return render(request, 'main/user_view.html', {'user_items':user_items, 'search_filter':""})
+
+
 
 @login_required
 def user_view_create(request):
     if request.method == "POST":
-        dictionary = {key : value for key, value in zip(request.POST.getlist('key'), request.POST.getlist('value')) if key.strip() != ""}
-        database.add_document(dictionary, request.session['user'])
+        dictionary = {"Title": request.POST.get("title"),
+                      "Content": request.POST.get("content")}
+        if dictionary["Title"].strip() != "":
+            database.add_document(dictionary, request.session['user'])
     return render(request, "main/user_view_create.html")
+
+
+@login_required
+def user_view_delete(request, id):
+    document = database.find_or({"uuid":[id]}, request.session['user'], True)
+    if document:
+        database.remove_document(document[0], request.session['user'])
+    return redirect('user_view')
