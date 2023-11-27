@@ -103,7 +103,7 @@ class JSONDatabase:
         return True
 
 
-    def find_or(self, filter:dict, category:str) -> Union[list, bool]:
+    def find_or(self, filter:dict, category:str, precise:bool = False) -> Union[list, bool]:
         """Method that will search a category and return documents as a list that match any of the filters. 
         The filter must be a dictionary which values are a list. Example:
         {"key1":["value1", "value2", "value3"], "key2":["value1", "value2", "value3"]}"""
@@ -126,10 +126,16 @@ class JSONDatabase:
                         return False
                     for value in values:
                         try:
-                            if document[f"{key}"] == value:
-                                elements.append(document)
-                                flag = False
-                                break
+                            if precise:
+                                if document[f"{key}"].lower() == value.lower():
+                                    elements.append(document)
+                                    flag = False
+                                    break
+                            else:
+                                if value.lower() in document[f"{key}"].lower():
+                                    elements.append(document)
+                                    flag = False
+                                    break
                         except KeyError:
                             pass
                     if not flag:
@@ -141,7 +147,7 @@ class JSONDatabase:
         return elements
 
 
-    def find_and(self, filter:dict, category:str) -> Union[list, bool]:
+    def find_and(self, filter:dict, category:str, precise:bool = False) -> Union[list, bool]:
         """Method that will search a category and return documents as a list that match all of the filters. 
         The filter must be a dictionary. The values of the filter must be a list and be of the same length. Example:
         {"key1":["value1", "value2", "value3"], "key2":["value1", "value2", "value3"]}"""
@@ -179,8 +185,12 @@ class JSONDatabase:
                 fit = True
                 for element in filters:
                     try:
-                        if document[element[0]] == element[1][index]:
-                            continue
+                        if precise:
+                            if document[element[0]].lower() == element[1][index].lower():
+                                continue
+                        else:
+                            if element[1][index].lower() in document[element[0]].lower():
+                                continue
                     except KeyError:
                         pass
                     fit = False
@@ -189,7 +199,7 @@ class JSONDatabase:
                     elements.append(document)
         
         return elements
-    
+
 
     def find_key(self, filter:list, category:str) -> Union[list, bool]:
         """Method that will search a category and return documents as a list that match any of the filters. 
@@ -234,4 +244,4 @@ class JSONDatabase:
             return False
 
 # dt = JSONDatabase("main/JSON")
-# print(dt.find_or(['dumwmy'], 'test'))
+# print(dt.find_and({"Title": ["test"]}, 'test', False))

@@ -11,27 +11,22 @@
 {% block body %}
     <form action="" method="POST">
         {% csrf_token %}
-        <select id="select" name="search-option" id="">
-            <option value="or">Or</option>
-            <option value="and">And</option>
-            <option value="key">Key</option>
-            <option value="all">All</option>
-        </select>
-
-        <input name="search-filter" value="{{search_filter}}" type="text">
+        <input id="search-filter" name="search-filter" value="{{search_filter}}" type="text">
 
         <button type="submit">Search</button>
+        <p>-----------------</p>
     </form>
 
     {% for item in user_items %}
         {% for key, value in item %}
-        <p>{{key}}: {{value}}</p>
+            {% if key == 'uuid' %}
+                <a href="delete/{{value}}">Delete</a>
+            {% else %}
+                <p>{{key}}: {{value}}</p>
+            {% endif %}
         {% endfor %}
         <p>-----------------</p>
     {% endfor %}
 
-    <script>
-        const selectElement = document.getElementById('select')
-        selectElement.value = '{{search_option}}'
-    </script>
+    <script src="../../static/js/user_view.js"></script>
 {% endblock %}
