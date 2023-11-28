@@ -9,6 +9,23 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+    <nav style="box-shadow: 0 25px 50px -12px rgb(55, 55, 55);" class="h-[60px] w-full md:h-[80px]">
+        <ul class="flex mx-[30px] md:mr-[60px] sm:justify-end space-x-8 | text-white | font-lilita">
+            <li class='grid items-center h-[60px] md:h-[80px]'><a style="transition: all 0.3s;" class='text-2xl md:text-[28px] xs:mx-[20px] | shadowHover' href='/'>Home</a></li>
+    
+            <li class='grid items-center h-[60px] md:h-[80px]'><a style="transition: all 0.3s;" class='font-oswald text-2xl md:text-[28px] | shadowHover' href='/user-view'>Notes</a></li>
+
+            <li class='sm:grid items-center h-[60px] md:h-[80px] hidden'><a style="transition: all 0.3s;" class='font-oswald text-2xl md:text-[28px] | shadowHover' href='/user-view/create'>Create Note</a></li>
+            
+            {% if logged %}
+                <li class='grid items-center h-[60px] md:h-[80px]'><a style="transition: all 0.3s;" class='text-xl bg-green-600 rounded-[6px] font-bold py-[5px] px-[15px] md:py-[10px]' href="/logout">Logout</a></li>
+            {% else %}
+                <li class='sm:grid items-center h-[60px] md:h-[80px] hidden'><a style="transition: all 0.3s;" class='font-oswald text-2xl md:text-[28px] | shadowHover' href='/register'>Register</a></li>
+                <li class='grid items-center h-[60px] md:h-[80px]'><a style="transition: all 0.3s;" class='text-xl bg-green-600 rounded-[6px] font-bold py-[5px] px-[15px] md:py-[10px]' href="/login">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    <br>
     {% block body %}{% endblock %}
 </body>
 </html>

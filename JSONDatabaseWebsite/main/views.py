@@ -16,12 +16,17 @@ def login_required(view_func):
     return _wrapped_view
 
 
+def is_logged_in(request):
+    if 'is_authenticated' in request.session:
+        return True
+    return False
+
 # Create your views here.
 
 database = JSONDatabase("main/JSON")
 
 def index(request):
-    return render(request, "main/index.html")
+    return render(request, "main/index.html", {"logged":is_logged_in(request)})
 
 def login(request):
     if request.method == "POST":
@@ -32,7 +37,7 @@ def login(request):
             request.session['is_authenticated'] = True
             request.session['user'] = username
             return redirect("index")
-    return render(request, "main/login.html")
+    return render(request, "main/login.html", {"logged":is_logged_in(request)})
 
 @login_required
 def logout(request):
@@ -54,7 +59,7 @@ def register(request):
             }, 'accounts')
             database.add_category(username)
             return redirect("index")
-    return render(request, "main/register.html")
+    return render(request, "main/register.html", {"logged":is_logged_in(request)})
 
 @login_required
 def user_view(request):
@@ -68,7 +73,7 @@ def user_view(request):
                                                        'search_filter':search_filter})
 
     user_items = [item.items() for item in database.get(request.session['user'])]
-    return render(request, 'main/user_view.html', {'user_items':user_items, 'search_filter':""})
+    return render(request, 'main/user_view.html', {"logged":is_logged_in(request), 'user_items':user_items, 'search_filter':""})
 
 
 
@@ -79,7 +84,7 @@ def user_view_create(request):
                       "Content": request.POST.get("content")}
         if dictionary["Title"].strip() != "":
             database.add_document(dictionary, request.session['user'])
-    return render(request, "main/user_view_create.html")
+    return render(request, "main/user_view_create.html", {"logged":is_logged_in(request)})
 
 
 @login_required
