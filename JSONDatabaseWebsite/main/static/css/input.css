@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    color-scheme: only light;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #212121;
+}
+
+.shadowHover:hover {
+    text-shadow: 5px 5px 15px #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+    background: #212121;
+    }
+  }
