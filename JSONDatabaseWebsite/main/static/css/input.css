@@ -10,6 +10,7 @@ body {
     margin: 0;
     padding: 0;
     background: #212121;
+    overflow-x: hidden;
 }
 
 .shadowHover:hover {
@@ -21,3 +22,12 @@ body {
     background: #212121;
     }
   }
+
+.stickyNote a{
+    opacity: 0;
+    transition: all .3s;
+}
+
+.stickyNote:hover a {
+    opacity: 1;
+}

@@ -66,13 +66,13 @@ def user_view(request):
     if request.method == "POST":
         search_filter = request.POST.get('search-filter')
         if search_filter == "":
-            return render(request, 'main/user_view.html', {'user_items':[item.items() for item in database.get(request.session['user'])],
+            return render(request, 'main/user_view.html', {'user_items':database.get(request.session['user']),
                                                            'search_filter':search_filter})
 
-        return render(request, 'main/user_view.html', {"user_items":[item.items() for item in database.find_or({"Title":[search_filter]}, request.session['user'])],
+        return render(request, 'main/user_view.html', {"user_items":database.find_or({"Title":[search_filter]}, request.session['user']),
                                                        'search_filter':search_filter})
 
-    user_items = [item.items() for item in database.get(request.session['user'])]
+    user_items = database.get(request.session['user'])
     return render(request, 'main/user_view.html', {"logged":is_logged_in(request), 'user_items':user_items, 'search_filter':""})
 
 
